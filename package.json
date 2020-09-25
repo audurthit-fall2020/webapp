@@ -1,0 +1,31 @@
+{
+  "name": "webapp",
+  "version": "1.0.0",
+  "description": "cloud native web application",
+  "main": "server.js",
+  "scripts": {
+    "test": "npm test",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trivedhaudurthi/webapp.git"
+  },
+  "author": "Trivedh Audurthi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/trivedhaudurthi/webapp/issues"
+  },
+  "homepage": "https://github.com/trivedhaudurthi/webapp#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "jest": "^26.4.2",
+    "node-mocks-http": "^1.9.0",
+    "nodemon": "^2.0.4",
+    "supertest": "^5.0.0"
+  }
+}
