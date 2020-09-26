@@ -17,13 +17,16 @@ exports.createUser=catchAsync(async (req,res,next)=>{
         next(new AppError(400,'Invalid request. Make sure to check that all the required fields are filled'));
         return;
     }
-    if(!validator.validateEmail(body[`email_address`])||!validator.validatePassword(body.password)){
-        next(new AppError(400,'Invalid email or password'));
+    if(!validator.validateEmail(body.email_address)){
+        next(new AppError(400,'Invalid email address'));
         return;
+    }
+    if(!validator.validatePassword(body.password)){
+        next(new AppError(400,'Invalid password. Password should be atleast 9 letters'));
     }
     const query=promisify(connection.query).bind(connection);
     const existingUsers=await query(`select * from user where email_address=?`,body.email_address);
-    console.log(existingUsers);
+    // console.log(existingUsers);
     if(existingUsers.length>0){
         next(new AppError(400,'Email address already exists'));
         return ; 

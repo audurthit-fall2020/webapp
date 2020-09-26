@@ -1,6 +1,9 @@
+const validator= require('email-validator');
+const e = require('express');
 exports.validateEmail=(email)=>{
-    return !email.match(/^([_a-zA-Z0-9-]+(\\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{1,6}))?$/)
+    return validator.validate(email);
 }
 exports.validatePassword=(password)=>{
-    return !password.match(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{9,32}$/);
-}
+    const regexp=/^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{9,}$/;
+    return regexp.test(password);
+}   
