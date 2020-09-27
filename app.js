@@ -2,10 +2,11 @@ const express= require('express');
 const app=express();
 const globalErrorHandler= require('./util/globalErrorHandler');
 const userRouter=require('./routes/user.routes.js');
+const AppError= require('./util/apperror');
 app.use(express.json({ limit: "10kb" }));
 app.use('*',(req,res,next)=>{
-    if(req.headers["content-type"]!=='application/json'){
-        next(400,'content type should in JSON format!');
+    if(Object.keys(req.body).length>0&&req.headers["content-type"]!=='application/json'){
+        next(new AppError(400,'content type should in JSON format!'));
         return;
     }
     next();

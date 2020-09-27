@@ -26,7 +26,6 @@ exports.createUser=catchAsync(async (req,res,next)=>{
     }
     const query=promisify(connection.query).bind(connection);
     const existingUsers=await query(`select * from user where email_address=?`,body.email_address);
-    // console.log(existingUsers);
     if(existingUsers.length>0){
         next(new AppError(400,'Email address already exists'));
         return ; 
@@ -46,3 +45,15 @@ exports.createUser=catchAsync(async (req,res,next)=>{
         account_updated:body.account_updated
     })
 });
+// exports.updateUser=catchAsync(async (req,res,next)=>{});
+exports.getUserInfo=catchAsync(async (req,res,next)=>{
+    const {id,email_address,first_name,last_name,account_created,account_updated}=req.user;
+    res.status(200).json({
+        id,
+        email_address,
+        first_name,
+        last_name,
+        account_created,
+        account_updated
+    });
+})
