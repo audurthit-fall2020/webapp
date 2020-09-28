@@ -4,7 +4,7 @@
   "description": "cloud native web application",
   "main": "server.js",
   "scripts": {
-    "test": "npm test",
+    "test": "jest --watch ./*.js --detectOpenHandles",
     "dev": "nodemon server.js"
   },
   "repository": {
@@ -18,9 +18,13 @@
   },
   "homepage": "https://github.com/trivedhaudurthi/webapp#readme",
   "dependencies": {
+    "bcrypt": "^5.0.0",
     "dotenv": "^8.2.0",
+    "email-validator": "^2.0.4",
     "express": "^4.17.1",
-    "mysql": "^2.18.1"
+    "moment": "^2.29.0",
+    "mysql": "^2.18.1",
+    "uuid": "^8.3.0"
   },
   "devDependencies": {
     "jest": "^26.4.2",
