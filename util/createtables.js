@@ -9,7 +9,7 @@ const createTables=async ()=>{
         console.log(err.message);
     }
 }
-const createUserTable=async ()=>{
+exports.createUserTable=async ()=>{
     const query = promisify(connection.query).bind(connection);
         try{
             await query(`create table if not exists user(id varchar(60),
@@ -26,4 +26,3 @@ const createUserTable=async ()=>{
         }
         
 }
-module.exports= createTables;

@@ -34,7 +34,7 @@ exports.createUser=catchAsync(async (req,res,next)=>{
     body.account_updated=body.account_created;
     body.userpassword=await bcrypt.hash(body.password,saltRounds);
     body.id=uuidv4();
-    body=filter(['id','first_name','last_name','userpassword','email_address','account_created','account_updated'],body);
+    delete body.password;
     const results=await query(`Insert into user set ?`,{...body});
     res.status(201).json({
         id:body.id,
@@ -45,7 +45,39 @@ exports.createUser=catchAsync(async (req,res,next)=>{
         account_updated:body.account_updated
     })
 });
-// exports.updateUser=catchAsync(async (req,res,next)=>{});
+exports.updateUser=catchAsync(async (req,res,next)=>{
+    const filterArray=['first_name','last_name','password'];
+    for(key in req.body){
+        if(!filterArray.includes(key)){
+            next(new AppError(400,`Invalid ${key} field`));
+            return;
+        }
+        else{
+            if(key==='first_name'&&req.body[key].length==0){
+                next(new AppError(400,'Please provide valid first name'));
+                return;
+            }
+            else if(key==='last_name'&&req.body[key].length==0){
+                next(new AppError(400,'Please provide valid last name'));
+                return;
+            }
+            else if(req.body.password&&!validator.validatePassword(req.body.password)){
+                next(new AppError(400,'Password should have 9 chacaters with atleast one lowercase letter, one uppercase letter, one symbol and one number'));
+                return;   
+            }
+        }
+    }
+
+    if(req.body.password){
+        req.body.userpassword= await bcrypt.hash(req.body.password,saltRounds);
+        delete req.body.password;
+    }
+    req.body.account_updated=moment().format('YYYY-MM-DD HH:mm:ss');
+    const query= promisify(connection.query).bind(connection);
+    const results= await query(`update user set ? where email_address=?`,[req.body,req.user.email_address]);
+    res.status(204).json({
+    });
+});
 exports.getUserInfo=catchAsync(async (req,res,next)=>{
     const {id,email_address,first_name,last_name,account_created,account_updated}=req.user;
     res.status(200).json({

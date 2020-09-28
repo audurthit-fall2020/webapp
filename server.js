@@ -9,7 +9,7 @@ connection.connect((err)=>{
     }
     else{
         console.log("Database connection successful");
-        createTables().catch(err=>console.log(err.message)).then(()=>{console.log(`Database setup done`)});
+        createTables.createUserTable().catch(err=>console.log(err.message)).then(()=>{console.log(`Database setup done`)});
     }
 })
 const app= require('./app');
