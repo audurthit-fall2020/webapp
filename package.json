@@ -4,7 +4,7 @@
   "description": "cloud native web application",
   "main": "server.js",
   "scripts": {
-    "test": "jest --watch ./*.js --detectOpenHandles",
+    "test": "jest",
     "dev": "nodemon server.js"
   },
   "repository": {
