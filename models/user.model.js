@@ -1,6 +1,8 @@
 const sequelize= require("../dbConnection.js");
 const {v4} = require('uuid')
 const {DataTypes,Model, Sequelize, DATE} =require('sequelize');
+const Question= require('./question.model');
+const Answer = require("./answer.model.js");
 class User extends Model{}
 User.init({
     id:{
@@ -34,5 +36,13 @@ User.init({
         defaultValue:DataTypes.NOW
     }
 },{sequelize},{timestamps:false});
-User.sync().catch(err=>console.log(err));
+// User.hasMany(Question,{
+//     foreignKey:'question_id'
+// })
+// Question.belongsTo(User);
+// User.hasMany(Answer,{
+//     foreignKey:'user_id'
+// })
+// Answer.belongsTo(User);
+// User.sync().catch(err=>console.log(err));
 module.exports=User;

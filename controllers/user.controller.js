@@ -8,7 +8,6 @@ const bcrypt= require('bcrypt');
 const saltRounds = parseInt(process.env.SALT);
 const {v4:uuidv4}= require('uuid');
 const moment= require('moment');
-const promisify=require('util').promisify;
 const filter=(arr,obj)=>{
   const newObj= Object.keys(obj).reduce((cum,cur)=>arr.includes(cur)?{...cum,[cur]:obj[cur]}:cum,{});
   return newObj;

@@ -2,6 +2,7 @@ const express= require('express');
 const app=express();
 const globalErrorHandler= require('./util/globalErrorHandler');
 const userRouter=require('./routes/user.routes.js');
+const questionRouter= require('./routes/question.routes');
 const AppError= require('./util/apperror');
 app.use(express.json({ limit: "10kb" }));
 app.use('*',(req,res,next)=>{
@@ -12,6 +13,7 @@ app.use('*',(req,res,next)=>{
     next();
 })
 app.use("/v1/user",userRouter);
+app.use("/v1/question",questionRouter);
 app.use(globalErrorHandler);
 app.use("*",(req,res,next)=>{
     res.status(404).json({
