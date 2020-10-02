@@ -1,12 +1,16 @@
 const {Sequelize}= require('sequelize');
-module.exports=()=>{
-    const sequelize= new Sequelize({
+let sequelize;
+const connect=()=>{
+     sequelize= new Sequelize({
         dialect:"mysql",
         host:process.env.DB_HOST,
         port:process.env.DB_PORT,
         username:process.env.DB_USERNAME,
         password:process.env.DB_PASSWORD,
-        database:process.env.DATABASE
+        database:process.env.DATABASE,
+        timezone: '-04:00',
+        logging:false
     })
     return sequelize;
 }
+module.exports=connect();

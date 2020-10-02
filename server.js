@@ -2,8 +2,7 @@ const dotenv= require('dotenv');
 dotenv.config({path:"./config.env"});
 const sequelize= require('./dbConnection');
 const createTables= require('./util/createtables');
-const connection= sequelize();
-connection.authenticate().then(res=>{
+sequelize.authenticate().then(res=>{
     console.log('Database connected');
 }).catch(err=>console.log('Database not connected'));
 const app= require('./app');

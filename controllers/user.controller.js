@@ -1,4 +1,6 @@
-const connection= require('../dbConnection');
+const User = require('../models/user.model');
+const {Sequelize,DataTypes,Op}= require('sequelize');
+const sequelize= require('../dbConnection');
 const validator= require('../util/validators');
 const catchAsync= require('../util/catchasync');
 const AppError= require('../util/apperror');
@@ -12,37 +14,36 @@ const filter=(arr,obj)=>{
   return newObj;
 }
 exports.createUser=catchAsync(async (req,res,next)=>{
-    let body=filter(['first_name','email_address','password','last_name'],req.body);
+    let body=filter(['first_name','username','password','last_name'],req.body);
     if(Object.keys(body).length!==4||body.first_name.length==0||body.last_name.length==0){
         next(new AppError(400,'Invalid request. Make sure to check that all the required fields are filled'));
         return;
     }
-    if(!validator.validateEmail(body.email_address)){
-        next(new AppError(400,'Invalid email address'));
+    if(!validator.validateEmail(body.username)){
+        next(new AppError(400,'Invalid user name'));
         return;
     }
     if(!validator.validatePassword(body.password)){
         next(new AppError(400,'Invalid password. Password should be atleast 9 letters'));
     }
-    const query=promisify(connection.query).bind(connection);
-    const existingUsers=await query(`select * from user where email_address=?`,body.email_address);
-    if(existingUsers.length>0){
+    const dbUser= await User.findOne({
+        where:{
+            username:body.username
+        }
+    })
+    if(dbUser){
         next(new AppError(400,'Email address already exists'));
         return ; 
     }
-    body.account_created=moment().format('YYYY-MM-DD HH:mm:ss');
-    body.account_updated=body.account_created;
-    body.userpassword=await bcrypt.hash(body.password,saltRounds);
-    body.id=uuidv4();
-    delete body.password;
-    const results=await query(`Insert into user set ?`,{...body});
+    body.password=await bcrypt.hash(body.password,saltRounds);
+    const user = await User.create(body);
     res.status(201).json({
-        id:body.id,
-        first_name:body.first_name,
-        last_name:body.last_name,
-        email:body.email_address,
-        account_created:body.account_created,
-        account_updated:body.account_updated
+        id:user.id,
+        first_name:user.first_name,
+        last_name:user.last_name,
+        username:user.username,
+        account_created:user.account_created,
+        account_updated:user.account_updated
     })
 });
 exports.updateUser=catchAsync(async (req,res,next)=>{
@@ -65,24 +66,26 @@ exports.updateUser=catchAsync(async (req,res,next)=>{
                 next(new AppError(400,'Password should have 9 chacaters with atleast one lowercase letter, one uppercase letter, one symbol and one number'));
                 return;   
             }
+            else{
+                req.user[key]=req.body[key];
+            }
         }
     }
-
+    
     if(req.body.password){
-        req.body.userpassword= await bcrypt.hash(req.body.password,saltRounds);
-        delete req.body.password;
+        req.body.password= await bcrypt.hash(req.body.password,saltRounds);
+        req.user.password=req.body.password;
     }
-    req.body.account_updated=moment().format('YYYY-MM-DD HH:mm:ss');
-    const query= promisify(connection.query).bind(connection);
-    const results= await query(`update user set ? where email_address=?`,[req.body,req.user.email_address]);
+    req.user.account_updated=moment().format('YYYY-MM-DD HH:mm:ss');
+    await req.user.save();
     res.status(204).json({
     });
 });
 exports.getUserInfo=catchAsync(async (req,res,next)=>{
-    const {id,email_address,first_name,last_name,account_created,account_updated}=req.user;
+    const {id,username,first_name,last_name,account_created,account_updated}=req.user;
     res.status(200).json({
         id,
-        email_address,
+        username,
         first_name,
         last_name,
         account_created,
