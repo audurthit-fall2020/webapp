@@ -8,14 +8,13 @@ class Question extends Model{}
 Question.init({
     id:{
         type:DataTypes.STRING,
-        defaultValue:v4(),
         primaryKey:true
     },
     created_timestamp:{
         type:DataTypes.DATE,
         defaultValue:DataTypes.NOW
     },
-    updated_at:{
+    updated_timestamp:{
         type:DataTypes.DATE,
         defaultValue:DataTypes.NOW
     },

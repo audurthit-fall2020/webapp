@@ -7,7 +7,6 @@ class Answer extends Model{}
 Answer.init({
     id:{
         type:DataTypes.STRING,
-        defaultValue:v4(),
         primaryKey:true
     },
     created_timestamp:{

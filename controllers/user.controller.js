@@ -1,4 +1,3 @@
-const User = require('../models/user.model');
 const {Sequelize,DataTypes,Op}= require('sequelize');
 const sequelize= require('../dbConnection');
 const validator= require('../util/validators');
@@ -7,7 +6,15 @@ const AppError= require('../util/apperror');
 const bcrypt= require('bcrypt');
 const saltRounds = parseInt(process.env.SALT);
 const {v4:uuidv4}= require('uuid');
+const syncModels= require('../models/syncmodels');
 const moment= require('moment');
+let Question,Category,User,Answer
+syncModels().then(res=>{
+    Question =res.Question,
+    Answer= res.Answer,
+    User=res.User,
+    Category=res.Category
+})
 const filter=(arr,obj)=>{
   const newObj= Object.keys(obj).reduce((cum,cur)=>arr.includes(cur)?{...cum,[cur]:obj[cur]}:cum,{});
   return newObj;
@@ -35,6 +42,7 @@ exports.createUser=catchAsync(async (req,res,next)=>{
         return ; 
     }
     body.password=await bcrypt.hash(body.password,saltRounds);
+    body.id=uuidv4();
     const user = await User.create(body);
     res.status(201).json({
         id:user.id,
@@ -90,4 +98,22 @@ exports.getUserInfo=catchAsync(async (req,res,next)=>{
         account_created,
         account_updated
     });
+})
+exports.getUserById=catchAsync(async (req,res, next)=>{
+    const {id}=req.params;
+    const user=await User.findByPk(id,{
+        attributes:[
+            'id',
+            'first_name',
+            'last_name',
+            'account_created',
+            'account_updated',
+            'username'
+        ]
+    })
+    if(!user){
+        next(new AppError(404,'No user found'));
+        return;
+    }
+    res.status(200).json(user)
 })
