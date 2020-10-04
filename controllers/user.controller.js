@@ -54,6 +54,11 @@ exports.createUser=catchAsync(async (req,res,next)=>{
     })
 });
 exports.updateUser=catchAsync(async (req,res,next)=>{
+    if(!req.body.username||req.body.username!=req.user.username){
+        next(new AppError(400,'Please provide valid email address'));
+        return;
+    }
+    delete req.body.username;
     const filterArray=['first_name','last_name','password'];
     for(key in req.body){
         if(!filterArray.includes(key)){

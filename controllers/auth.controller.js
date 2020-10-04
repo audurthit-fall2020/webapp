@@ -1,9 +1,11 @@
-const sequelize = require('../dbConnection');
-const User=require('../models/user.model');
 const AppError= require('../util/apperror');
 const catchasync = require('../util/catchasync');
-const promsify= require('util').promisify;
 const bcrypt= require('bcrypt');
+const syncModels= require('../models/syncmodels')
+let User
+syncModels().then(res=>{
+    User=res.User
+})
 exports.authenticate=catchasync(async (req,res,next)=>{
     if(!req.headers.authorization||!req.headers.authorization.startsWith('Basic ')){
         next(new AppError(401,'Unauthenticated!! Please make sure to provide correct details'));
