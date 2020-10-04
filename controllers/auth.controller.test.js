@@ -1,6 +1,10 @@
+jest.mock("../models/syncmodels", ()=>{
+  return jest.fn(async ()=>Promise.resolve({}))
+})
 const httpMocks = require('node-mocks-http');
 const authController = require('./auth.controller');
 const AppError= require('../util/apperror');
+require('iconv-lite').encodingExists('foo')
 describe('authcontroller test', () => {
     let next;
     let res;
@@ -44,11 +48,11 @@ describe('authcontroller test', () => {
     })
     test('test for logging in with correct credentials',async()=>{
       next= jest.fn().mockImplementation(()=>null)
-      const enc= new Buffer.from('test@abc.com:Test@1234').toString('base64');
+      const header= `Basic ${new Buffer.from('test@abc.com:Test@1234').toString('base64')}`;
       const req=httpMocks.createRequest({
         url:`/v1/user/self`,
         headers:{
-          authorization : `Basic ${enc}`
+          authorization : header
         },
         method:'GET'
     })

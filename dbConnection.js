@@ -1,10 +1,16 @@
-const mysql= require('mysql');
-const connection= mysql.createConnection({
-    host:process.env.DB_HOST,
-    port:process.env.DN_PORT,
-    user:process.env.DB_USERNAME,
-    password:process.env.DB_PASSWORD,
-    database:process.env.DATABASE,
-    timezone:'UTC'
-})
-module.exports=connection;
+const {Sequelize}= require('sequelize');
+let sequelize;
+const connect=()=>{
+     sequelize= new Sequelize({
+        dialect:"mysql",
+        host:process.env.DB_HOST,
+        port:process.env.DB_PORT,
+        username:process.env.DB_USERNAME,
+        password:process.env.DB_PASSWORD,
+        database:process.env.DATABASE,
+        timezone: '-04:00',
+        logging:false
+    })
+    return sequelize;
+}
+module.exports=connect();
