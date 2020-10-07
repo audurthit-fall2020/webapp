@@ -1,4 +1,5 @@
 const {Sequelize}= require('sequelize');
+const moment= require('moment');
 let sequelize;
 const connect=()=>{
      sequelize= new Sequelize({
@@ -9,7 +10,17 @@ const connect=()=>{
         password:process.env.DB_PASSWORD,
         database:process.env.DATABASE,
         timezone: '-04:00',
-        logging:false
+        logging:false,
+        dialectOptions:{
+            typeCast: function (field, next) { // for reading from database
+                if (field.type === 'DATETIME') {
+                  return moment(field.string()).format("YYYY-MM-DDTHH:mm:ss")
+                }
+                return next();
+            }
+        }
+        
+    
     })
     return sequelize;
 }
