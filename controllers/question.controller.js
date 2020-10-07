@@ -4,6 +4,7 @@ const AppError= require('../util/apperror');
 const syncModels= require('../models/syncmodels');
 const {v4}= require('uuid');
 const moment= require('moment');
+const { model } = require('../dbConnection');
 let Question,Category,User,Answer
 syncModels().then(res=>{
     Question =res.Question,
@@ -16,36 +17,41 @@ exports.postQuestion=catchAsync(async (req,res,next)=>{
         next(new AppError(400,'Invalid Question, please submit a valid question'));
         return;
     }
-    const question= await Question.create({
-        id: v4(),
-        question_text:req.body.question_text
-    });
-    // console.log(question);
     let categories=req.body.categories?req.body.categories:[];
     if(categories&&categories.length>=1){
         for(cat of categories){
             if(!cat.category){
-                await question.destroy();
                 next(new AppError(400,'Invalid Categories'))
                 return ;
             }
         }
+        categories=categories.reduce((acc,cur)=>{
+            let str=cur.category.toLowerCase();
+            if(!acc.includes(str)){
+                acc.push(str);
+            }
+            return acc;
+        },[]);
         categories=await Promise.all(categories.map(async elm => {
             let category=await Category.findOne({
                 where:{
-                    category:elm.category
+                    category:elm.toLowerCase()
                 }
             });
             if(!category){
                 category= await Category.create({
                     id:v4(),
-                    category:elm.category
+                    category:elm.toLowerCase()
                 })
             }
-            await question.addCategory(category);
             return category;
         }))
     }
+    const question= await Question.create({
+        id: v4(),
+        question_text:req.body.question_text
+    });
+    await question.addCategories(categories);
     await req.user.addQuestion(question);
     res.status(200).json({
         question_id:question.id,
@@ -89,30 +95,36 @@ exports.updateQuestion=catchAsync(async (req,res,next)=>{
         next(new AppError(404,'No question found with given credentials'));
         return ;
     }
-    const categories=req.body.categories;
+    let categories=req.body.categories;
     if(categories){
         for(cat of categories){
             if(!cat.category){
-                next(new AppError(400,'Invalid Categories'));
-                return;
+                next(new AppError(400,'Invalid Categories'))
+                return ;
             }
         }
-        await question.setCategories([]);
-        await Promise.all(categories.map(async elm => {
+        categories=categories.reduce((acc,cur)=>{
+            let str=cur.category.toLowerCase();
+            if(!acc.includes(str)){
+                acc.push(str);
+            }
+            return acc;
+        },[]);
+        categories=await Promise.all(categories.map(async elm => {
             let category=await Category.findOne({
                 where:{
-                    category:elm.category
+                    category:elm.toLowerCase()
                 }
             });
             if(!category){
                 category= await Category.create({
                     id:v4(),
-                    category:elm.category
+                    category:elm.toLowerCase()
                 })
             }
-            await question.addCategory(category);
             return category;
-        }));
+        }))
+        question.setCategories(categories);
     }
     if(req.body.question_text){
         question.question_text=req.body.question_text;
@@ -129,4 +141,19 @@ exports.getAllQuestions= catchAsync(async (req,res,next)=>{
         },Answer]
     })
     res.status(200).json(questions)
+})
+exports.getQuestionById=catchAsync(async (req,res,next)=>{
+    const  question= await Question.findByPk(req.params.question_id,{
+        include:[{
+            model:Category,
+            through:{attributes:[]}
+        },Answer]
+    });
+    if(!question){
+        next(new AppError(404,'No question found with given ID'));
+        return;
+    }
+    res.status(200).json({
+        question
+    })
 })
