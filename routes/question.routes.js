@@ -8,4 +8,7 @@ router.route("/:question_id")
 .delete(authenticate,questionController.deleteQuestion)
 .put(authenticate,questionController.updateQuestion)
 .get(questionController.getQuestionById);
+router.route("/:question_id/file").post(authenticate,questionController.getAuthQuestionById,questionController.uploadImages,
+    questionController.uploadToS3);
+router.route("/:question_id/file/:file_id").delete(authenticate,questionController.getAuthQuestionById,questionController.deleteQuestionFile);
 module.exports=router;
