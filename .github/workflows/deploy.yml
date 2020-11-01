@@ -11,7 +11,7 @@ jobs:
         appname: ['csye6225-webapp']
         deploy-group: ['dev']
         s3-bucket: ['codedeploy.trivedhaudurthi.me']
-        s3-key: ['webapp-${{GITHUB_SHA}}']
+        s3-key: ['webapp-$GITHUB_SHA']
         region: ['us-east-1']
     steps:
       - uses: actions/checkout@v2
@@ -34,7 +34,7 @@ jobs:
         run: |
           aws deploy push \
           --application-name ${{ matrix.appname }} \
-          --description "This is a revision for the ${{ matrix.appname }}-${{GITHUB_SHA}}" \
+          --description "This is a revision for the ${{ matrix.appname }}-$GITHUB_SHA" \
           --s3-location s3://${{ matrix.s3-bucket }}/${{ matrix.s3-key }}.zip
       - name: Deploy application
         run: |
