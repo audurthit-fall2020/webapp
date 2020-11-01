@@ -1,0 +1,45 @@
+name: Deploy to EC2
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        appname: ['csye6225-webapp']
+        deploy-group: ['dev']
+        s3-bucket: ['codedeploy.trivedhaudurthi.me']
+        s3-key: ['webapp-${{GITHUB_SHA}}']
+        region: ['us-east-1']
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Packages
+        run: |
+          sudo apt install -y curl
+          sudo apt-get install -y unzip
+      - name: Install AWS CLI
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+      - name: Configure awscli
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{matrix.region}}
+      - name: Push artifact to S3
+        run: |
+          aws deploy push \
+          --application-name ${{ matrix.appname }} \
+          --description "This is a revision for the ${{ matrix.appname }}-${{GITHUB_SHA}}" \
+          --s3-location s3://${{ matrix.s3-bucket }}/${{ matrix.s3-key }}.zip
+      - name: Deploy application
+        run: |
+          aws deploy create-deployment \
+          --application-name ${{matrix.appname}} \
+          --deployment-group-name ${{matrix.deploy-group}}\
+          --description "Deploy application" \
+          --s3-location bucket=${{matrix.s3-bucket}},bundleType=zip,key=${{matrix.s3-key}}
