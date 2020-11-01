@@ -42,4 +42,4 @@ jobs:
           --application-name ${{matrix.appname}} \
           --deployment-group-name ${{matrix.deploy-group}} \
           --description "Deploy application revision ${{ matrix.appname }}-$GITHUB_SHA" \
-          --s3-location bucket=${{matrix.s3-bucket}},bundleType=zip,key=${{matrix.s3-key}}
+          --s3-location bucket=${{matrix.s3-bucket}},bundleType=zip,key=${{matrix.s3-key}}.zip
