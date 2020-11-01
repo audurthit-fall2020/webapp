@@ -36,10 +36,10 @@ jobs:
           --application-name ${{ matrix.appname }} \
           --description "This is a revision for the ${{ matrix.appname }}-$GITHUB_SHA" \
           --s3-location s3://${{ matrix.s3-bucket }}/${{ matrix.s3-key }}.zip
-      - name: Deploy application
+      - name: Deploy application on EC2
         run: |
           aws deploy create-deployment \
           --application-name ${{matrix.appname}} \
-          --deployment-group-name ${{matrix.deploy-group}}\
-          --description "Deploy application" \
+          --deployment-group-name ${{matrix.deploy-group}} \
+          --description "Deploy application revision ${{ matrix.appname }}-$GITHUB_SHA" \
           --s3-location bucket=${{matrix.s3-bucket}},bundleType=zip,key=${{matrix.s3-key}}
