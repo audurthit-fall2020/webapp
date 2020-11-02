@@ -14,6 +14,7 @@
 # Testing
 - Run `npm install --only=dev --no-shrinkwrap` to install developer dependencies <br/>
 - Run `npm test` after starting the server <br />
-# Deploy Instructions
+# Deployment
+- CI/CD using GitHub actions and AWS CodeDeploy
 
 
