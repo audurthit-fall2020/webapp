@@ -5,7 +5,7 @@
 - MySQL <br/>
 - Postman and jest for testing
 # Prerequisites
-- Install Node.js, npm, MySQL
+- Install Node.js, npm, RDS
 # Build Instructions
 - Clone or download the respository <br />
 - Set approriate environment variables for port and database connection <br />
