@@ -61,6 +61,7 @@ exports.uploadToS3=catchAsync(async(req,res,next)=>{
     const metadata= await s3.headObject(metaParams).promise();
     metadata.id=Key;
     await Metadata.create(metadata);
+    sdc.timing('post.question.files.dbTimer',dbTimer);
     logger.info('Attached file to question');
     sdc.timing('post.question.files.timer',timer);
     res.status(200).json({
