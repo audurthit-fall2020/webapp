@@ -75,6 +75,7 @@ exports.postQuestion=catchAsync(async (req,res,next)=>{
         next(new AppError(400,'Invalid Question, please submit a valid question'));
         return;
     }
+    const dbTimer = new Date();
     let categories=req.body.categories?req.body.categories:[];
     if(categories&&categories.length>=1){
         for(cat of categories){
@@ -91,7 +92,6 @@ exports.postQuestion=catchAsync(async (req,res,next)=>{
             }
             return acc;
         },[]);
-        const dbTimer = new Date();
         categories=await Promise.all(categories.map(async elm => {
             let category=await Category.findOne({
                 where:{
@@ -115,7 +115,7 @@ exports.postQuestion=catchAsync(async (req,res,next)=>{
     await req.user.addQuestion(question);
     sdc.timing('post.question.dbTimer',dbTimer);
     sdc.timing('post.question.timer',timer);
-    log.info('posted question');
+    logger.info('posted question');
     res.status(200).json({
         question_id:question.id,
         question_text:question.question_text,
@@ -186,6 +186,7 @@ exports.updateQuestion=catchAsync(async (req,res,next)=>{
         return ;
     }
     let categories=req.body.categories;
+    const dbTimer = new Date();
     if(categories){
         for(cat of categories){
             if(!cat.category){
@@ -201,7 +202,6 @@ exports.updateQuestion=catchAsync(async (req,res,next)=>{
             }
             return acc;
         },[]);
-        const dbTimer = new Date();
         categories=await Promise.all(categories.map(async elm => {
             let category=await Category.findOne({
                 where:{
@@ -241,12 +241,12 @@ exports.getAllQuestions= catchAsync(async (req,res,next)=>{
     })
     sdc.timing('get.all_questions.dbTimer',dbTimer);
     sdc.timing('get.all_question.timer',timer);
-    log.info('Retrived all question');
+    logger.info('Retrived all question');
     res.status(200).json(questions)
 })
 exports.getQuestionById=catchAsync(async (req,res,next)=>{
     const timer = new Date();
-    const dbTime= new Date();
+    const dbTimer= new Date();
     const  question= await Question.findByPk(req.params.question_id,{
         include:[{
             model:Category,
@@ -262,7 +262,7 @@ exports.getQuestionById=catchAsync(async (req,res,next)=>{
     }
     sdc.timing('get.question.dbTimer',dbTimer);
     sdc.timing('get.question.timer',timer);
-    log.info('Retrived question');
+    logger.info('Retrived question');
     res.status(200).json({
         question
     })
@@ -285,7 +285,7 @@ exports.getAuthQuestionById=catchAsync(async(req,res,next)=>{
     req.question=question;
     sdc.timing('get.questionAuthById.dbTimer',dbTimer);
     sdc.timing('get.questionAuthById.timer',timer);
-    log.info('Retrived question');
+    logger.info('Retrived question');
     next();
 })
 exports.deleteQuestionFile=catchAsync(async(req,res,next)=>{
