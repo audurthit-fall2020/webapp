@@ -3,7 +3,7 @@
 - Node.js <br/>  
 - Express.js <br/>
 - MySQL <br/>
-- Postman and jest for testing
+- Postman & jest for testing
 # Prerequisites
 - Install Node.js, npm, MySQL
 # Build Instructions
