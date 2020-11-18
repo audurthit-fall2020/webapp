@@ -15,14 +15,6 @@ log4js.configure({
     });
 const logger = log4js.getLogger('logs');
 app.use(express.json({ limit: "10kb" }));
-app.use('*',(req,res,next)=>{
-    if(Object.keys(req.body).length>0&&req.headers["content-type"]!=='application/json'){
-        logger.error('content type should in JSON format!');
-        next(new AppError(400,'content type should in JSON format!'));
-        return;
-    }
-    next();
-})
 app.use("/v1/user",userRouter);
 app.use("/v1/question",questionRouter);
 app.use("/v1/question/:question_id/answer",answerRouter);
