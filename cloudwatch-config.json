@@ -1,6 +1,6 @@
 {
     "agent": {
-        "metrics_collection_interval": 61
+        "metrics_collection_interval": 10
     },
     "logs": {
         "logs_collected": {
