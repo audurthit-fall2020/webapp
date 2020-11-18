@@ -35,11 +35,15 @@ jobs:
           aws deploy push \
           --application-name ${{ matrix.appname }} \
           --description "This is a revision for the ${{ matrix.appname }}-$GITHUB_SHA" \
-          --s3-location s3://${{ matrix.s3-bucket }}/${{ matrix.s3-key }}.zip
+          --s3-location s3://codedeploy.$account.trivedhaudurthi.me/${{ matrix.s3-key }}.zip
+        env:
+          account: ${{secrets.ACCOUNT}}
       - name: Deploy application on EC2
         run: |
           aws deploy create-deployment \
           --application-name ${{matrix.appname}} \
           --deployment-group-name ${{matrix.deploy-group}} \
           --description "Deploy application revision ${{ matrix.appname }}-$GITHUB_SHA" \
-          --s3-location bucket=${{matrix.s3-bucket}},bundleType=zip,key=${{matrix.s3-key}}.zip
+          --s3-location bucket=codedeploy.$account.trivedhaudurthi.me,bundleType=zip,key=${{matrix.s3-key}}.zip
+        env:
+          account: ${{secrets.ACCOUNT}}
