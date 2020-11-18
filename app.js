@@ -27,6 +27,11 @@ app.use("/v1/user",userRouter);
 app.use("/v1/question",questionRouter);
 app.use("/v1/question/:question_id/answer",answerRouter);
 app.use("/v1/questions",allQuestionsRouter);
+app.use("/v1/health",(req,res,next)=>{
+    res.status(200).json({
+        status:'success'
+    })
+});
 app.use(globalErrorHandler);
 app.use("*",(req,res,next)=>{
     logger.error('content type should in JSON format!');
