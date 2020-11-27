@@ -96,21 +96,23 @@ exports.answerQuestion=catchAsync(async(req,res,next)=>{
     let params={
         MessageStructure:"json",
         Message:JSON.stringify({
-            question_id: question.id,
-            answer_id:answer.id,
-            answer_text:answer.answer_text,
-            created_timestamp:answer.created_timestamp,
-            owner_email:question_user.username,
-            question_url:question_url,
-            answer_url:answer_url,
-            default:question.id,
-            user_email:req.user.username
+            "default":JSON.stringify({
+                "owner_email":question_user.username,
+                "question_id": question.id,
+                "answer_id":answer.id,
+                "answer_text":answer.answer_text,
+                "created_timestamp":answer.created_timestamp,
+                "question_url":question_url,
+                "answer_url":answer_url,
+                "user_email":req.user.username
+            })
         }),
         TopicArn:process.env.sns_topic 
     }
     var publish= new AWS.SNS().publish(params).promise();
-    const {MessageId}= await publish;
-    logger.info(`Published message: ${MessageId} to topic`);
+    const data= await publish;
+    console.log(data);
+    logger.info(`Published message: ${data.MessageId} to topic`);
     sdc.timing('post.answer.dbTimer',dbTimer);
     logger.info('Added answer to question');
     sdc.timing('post.answer.timer',timer);
@@ -158,20 +160,21 @@ exports.updateAnswer=catchAsync(async (req,res, next)=>{
     let params={
         MessageStructure:"json",
         Message:JSON.stringify({
-            question_id: question.id,
-            answer_id:answer.id,
-            answer_text:answer.answer_text,
-            updated_timestamp:answer.updated_timestamp,
-            owner_email:question_user.username,
-            question_url:question_url,
-            answer_url:answer_url,
-            default:question.id,
-            user_email:req.user.username
+            "default":JSON.stringify({
+                "owner_email":question_user.username,
+                "question_id": question.id,
+                "answer_id":answer.id,
+                "answer_text":answer.answer_text,
+                "updated_timestamp":answer.updated_timestamp,
+                "question_url":question_url,
+                "answer_url":answer_url,
+                "user_email":req.user.username
+            })
         }),
         TopicArn:process.env.sns_topic 
     }
     var publish= new AWS.SNS().publish(params).promise();
-    const {MessageId}= await publish();
+    const {MessageId}= await publish;
     logger.info(`Published message: ${MessageId} to topic`);
     logger.info('updated answer');
     sdc.timing('put.answer.timer',timer);
@@ -215,23 +218,24 @@ exports.deleteAnswer=catchAsync(async (req,res, next)=>{
     sdc.timing('delete.files.s3',s3Timer);
     await answer.destroy();
     logger.info('Deleted Answer');
-    const question_url=`${req.protocol}://${req.hostname}/v1/question/${question.id}`
+    const question_url=`${req.protocol}://${req.hostname}/v1/question/${question_id}`
     logger.info(`Question URL: ${question_url}`);
     const question= await Question.findByPk(question_id);
     const question_user= await User.findByPk(question.user_id);
     let sns_params={
         MessageStructure:"json",
         Message:JSON.stringify({
-            question_id: question.id,
-            owner_email:question_user.username,
-            question_url:question_url,
-            user_email:req.user.username,
-            default:question.id
+            "default":JSON.stringify({
+                "owner_email":question_user.username,
+                "question_id": question.id,
+                "question_url":question_url,
+                "user_email":req.user.username
+            })
         }),
         TopicArn:process.env.sns_topic 
     }
     var publish= new AWS.SNS().publish(sns_params).promise();
-    const {MessageId}= await publish();
+    const {MessageId}= await publish;
     logger.info(`Published message: ${MessageId} to topic`);
     sdc.timing('delete.answer.timer',timer);
     res.status(204).json({
