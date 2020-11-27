@@ -77,6 +77,7 @@ exports.answerQuestion=catchAsync(async(req,res,next)=>{
     const id= req.params.question_id;
     const dbTimer=new Date();
     const question= await Question.findByPk(id);
+    const question_user= await User.findByPk(question.user_id);
     if(!question){
         logger.error('No question found with given id');
         next(new AppError(400,'No question found with the given id'));
@@ -88,6 +89,30 @@ exports.answerQuestion=catchAsync(async(req,res,next)=>{
     })
     await question.addAnswer(answer);
     await req.user.addAnswer(answer);
+    const question_url=`${req.protocol}://${req.hostname}/v1/question/${question.id}`
+    const answer_url=`${req.protocol}://${req.hostname}/v1/question/${question.id}/answer/${answer.id}`
+    logger.info(`Question URL: ${question_url}`);
+    logger.info(`ANswer URL: ${answer_url}`);
+    let params={
+        MessageStructure:"json",
+        Message:JSON.stringify({
+            "default":JSON.stringify({
+                "owner_email":question_user.username,
+                "question_id": question.id,
+                "answer_id":answer.id,
+                "answer_text":answer.answer_text,
+                "created_timestamp":answer.created_timestamp,
+                "question_url":question_url,
+                "answer_url":answer_url,
+                "user_email":req.user.username
+            })
+        }),
+        TopicArn:process.env.sns_topic 
+    }
+    var publish= new AWS.SNS().publish(params).promise();
+    const data= await publish;
+    console.log(data);
+    logger.info(`Published message: ${data.MessageId} to topic`);
     sdc.timing('post.answer.dbTimer',dbTimer);
     logger.info('Added answer to question');
     sdc.timing('post.answer.timer',timer);
@@ -126,6 +151,31 @@ exports.updateAnswer=catchAsync(async (req,res, next)=>{
     answer.updated_timestamp=moment().format('YYYY-MM-DD HH:mm:ss');
     await answer.save();
     sdc.timing('put.answer.dbTimer',dbTimer);
+    const question= await Question.findByPk(question_id);
+    const question_user= await User.findByPk(question.user_id)  
+    const question_url=`${req.protocol}://${req.hostname}/v1/question/${question.id}`
+    const answer_url=`${req.protocol}://${req.hostname}/v1/question/${question.id}/answer/${answer.id}`
+    logger.info(`Question URL: ${question_url}`);
+    logger.info(`Answer URL: ${answer_url}`);
+    let params={
+        MessageStructure:"json",
+        Message:JSON.stringify({
+            "default":JSON.stringify({
+                "owner_email":question_user.username,
+                "question_id": question.id,
+                "answer_id":answer.id,
+                "answer_text":answer.answer_text,
+                "updated_timestamp":answer.updated_timestamp,
+                "question_url":question_url,
+                "answer_url":answer_url,
+                "user_email":req.user.username
+            })
+        }),
+        TopicArn:process.env.sns_topic 
+    }
+    var publish= new AWS.SNS().publish(params).promise();
+    const {MessageId}= await publish;
+    logger.info(`Published message: ${MessageId} to topic`);
     logger.info('updated answer');
     sdc.timing('put.answer.timer',timer);
     res.status(204).json({
@@ -168,7 +218,26 @@ exports.deleteAnswer=catchAsync(async (req,res, next)=>{
     sdc.timing('delete.files.s3',s3Timer);
     await answer.destroy();
     logger.info('Deleted Answer');
-    sdc.timing('delete.amswer.timer',timer);
+    const question_url=`${req.protocol}://${req.hostname}/v1/question/${question_id}`
+    logger.info(`Question URL: ${question_url}`);
+    const question= await Question.findByPk(question_id);
+    const question_user= await User.findByPk(question.user_id);
+    let sns_params={
+        MessageStructure:"json",
+        Message:JSON.stringify({
+            "default":JSON.stringify({
+                "owner_email":question_user.username,
+                "question_id": question.id,
+                "question_url":question_url,
+                "user_email":req.user.username
+            })
+        }),
+        TopicArn:process.env.sns_topic 
+    }
+    var publish= new AWS.SNS().publish(sns_params).promise();
+    const {MessageId}= await publish;
+    logger.info(`Published message: ${MessageId} to topic`);
+    sdc.timing('delete.answer.timer',timer);
     res.status(204).json({
 
     })
