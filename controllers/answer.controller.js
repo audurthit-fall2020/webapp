@@ -77,12 +77,12 @@ exports.answerQuestion=catchAsync(async(req,res,next)=>{
     const id= req.params.question_id;
     const dbTimer=new Date();
     const question= await Question.findByPk(id);
-    const question_user= await User.findByPk(question.user_id);
     if(!question){
         logger.error('No question found with given id');
         next(new AppError(400,'No question found with the given id'));
         return;
     }
+    const question_user= await User.findByPk(question.user_id);
     const answer= await Answer.create({
         id:v4(),
         answer_text:req.body.answer_text,
