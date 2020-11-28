@@ -229,7 +229,8 @@ exports.deleteAnswer=catchAsync(async (req,res, next)=>{
                 "owner_email":question_user.username,
                 "question_id": question.id,
                 "question_url":question_url,
-                "user_email":req.user.username
+                "user_email":req.user.username,
+                "answer_id":answer_id
             })
         }),
         TopicArn:process.env.sns_topic 
