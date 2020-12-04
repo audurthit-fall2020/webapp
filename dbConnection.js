@@ -17,7 +17,8 @@ const connect=()=>{
                   return moment(field.string()).format("YYYY-MM-DDTHH:mm:ss")
                 }
                 return next();
-            }
+            },
+            ssl: 'Amazon RDS' 
         }
         
     
