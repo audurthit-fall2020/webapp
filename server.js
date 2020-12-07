@@ -9,7 +9,11 @@ log4js.configure({
     });
 const logger = log4js.getLogger('logs');
 sequelize.authenticate().then(res=>{
-    logger.info('Database connected')
+    logger.info('Database connected');
+    sequelize.query("SHOW STATUS LIKE 'Ssl_cipher'", { type: sequelize.QueryTypes.SELECT })
+   .then((result) => {
+       console.log(result[0].Value);
+   });
     console.log('Database connected');
 }).catch(err=>{
     logger.error('Database connection failed')

@@ -26,7 +26,6 @@ app.use("/v1/health",(req,res,next)=>{
 });
 app.use(globalErrorHandler);
 app.use("*",(req,res,next)=>{
-    logger.error('content type should in JSON format!');
     res.status(404).json({
         message:`${req.originalUrl} is not found on this server`
     })
