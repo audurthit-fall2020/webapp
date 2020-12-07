@@ -12,9 +12,8 @@ sequelize.authenticate().then(res=>{
     logger.info('Database connected');
     sequelize.query("SHOW STATUS LIKE 'Ssl_cipher'", { type: sequelize.QueryTypes.SELECT })
    .then((result) => {
-       console.log(result[0].Value);
-   });
-    console.log('Database connected');
+       logger.info(`SSL cipher: ${result[0].Value}`);
+   }).catch(err=>{logger.error('Not connected to Database via SSL')});
 }).catch(err=>{
     logger.error('Database connection failed')
     console.log('Database connection failed')});
