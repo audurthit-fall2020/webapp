@@ -14,6 +14,13 @@ sequelize.authenticate().then(res=>{
    .then((result) => {
        logger.info(`SSL cipher: ${result[0].Value}`);
    }).catch(err=>{logger.error('Not connected to Database via SSL')});
+   sequelize.query(`SELECT id, user, host, connection_type 
+   FROM performance_schema.threads pst 
+   INNER JOIN information_schema.processlist isp 
+   ON pst.processlist_id = isp.id;`, { type: sequelize.QueryTypes.SELECT })
+   .then((result) => {
+       logger.info(`SSL cipher: ${result}`);
+   }).catch(err=>{logger.error(err)});
 }).catch(err=>{
     logger.error('Database connection failed')
     console.log('Database connection failed')});
